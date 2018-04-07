@@ -1,0 +1,96 @@
+<?php
+ include('../connection.php');
+  include('../login1.php');
+if($_SESSION['login'] != True){
+	header('location: ../login.php');
+}
+else
+{
+	$id = $_SESSION['id'];
+	function get($dbt,$name,$id)
+	{
+		global $connection;
+		$get = $connection->prepare("SELECT * FROM " . $dbt . " where " . $name ." = :id");
+		$get->bindParam(":id",$id);
+		$get->execute();
+		return $get->fetch(PDO::FETCH_ASSOC);
+	}
+	$query = get("user1","id",$id);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SPR schools</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script>
+  function goto(){
+	  window.location = "<?php echo $query['propic'];?>";
+  }
+  </script>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="home.php">SPR School</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="home.php">Home</a></li>
+      <li><a href="detail.php">Student Details</a></li>
+	  <li><a href="about1.php">Marks & Attendence</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+			  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    <img src="<?php echo $query['propic'];?>" class="profile-image img-circle" width="20" height="20" onclick="goto()"><?php $name = $query['username'];  echo $name;?><b class="caret"></b></a>
+    <ul class="dropdown-menu">
+        <li><a href="setting.php"><i class="fa fa-cog"></i>Settings</a></li>
+        <li class="divider"></li>
+      <li><a href="../logout.php"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+    </ul>
+	</li>
+  </div>
+</nav>
+<div class="container">
+<?php
+echo "<h2>Student Details</h2>";
+$name = 'stuid';
+$name1 = $name;
+for($i=0;$i<3;$i++)
+{
+	if($i!=0)
+	{
+		$m = $i + 1;
+		$name = $name1.$m;
+	}
+	if($query[$name] != '')
+	{
+		$query0 = get("user","stuid",$query[$name]);
+	}
+	else
+	{
+		break;
+	}
+	$detail = array("Student Name:","class:","Section:","studetn id:","feepaid:","feedue:");
+	$actual = array("stuname","stuclass","section","stuid","feepaid","feedue");
+	echo "<table class='table table-hover'>
+		<tbody><br>";
+		echo "<img src=". $query0['image'] . " class='img-rounded' alt='image of student not avilable presently' width=304 height=236><br><br>";
+	for($m=0;$m<6;$m++)
+	{
+		echo "<tr>
+          <th> " . $detail[$m] . "</th>
+            <td>" . $query0[$actual[$m]] . "</td>
+        </tr>";
+	}
+	echo "</tbody><br><br>";
+}
+?>
+</div>
+</body>
+</html>

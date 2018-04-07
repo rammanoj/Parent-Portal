@@ -1,0 +1,1 @@
+Profile pics get added to img/ folder.
